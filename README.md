@@ -11,8 +11,6 @@ Useful for both:
 
 > Idea inspired by the [PAL / Zen MCP `consensus` tool](https://github.com/BeehiveInnovations/pal-mcp-server/blob/main/docs/tools/consensus.md). The architecture and naming are different (this is a Cursor-native plugin, not an MCP server), but the philosophy of multi-model perspective-gathering is theirs.
 
-![Multi-agent consensus plugin in the Cursor Plugins UI showing 1 skill, 2 subagents, 1 rule, and 1 command](assets/plugins-ui.png)
-
 ## What it does
 
 When you trigger `/consensus` (or are reminded by the bundled `consensus-reminder` rule), the workflow is the same in both modes:
