@@ -25,24 +25,6 @@ When you trigger `/consensus` (or are reminded by the bundled `consensus-reminde
 
 Critically, this is not "pick the best of N independent attempts." All three models work on the **same artifact** and feed back into each other through the lead model. The lead model retains decision authority.
 
-## Alternative approaches considered
-
-### Native Cursor parallel agents
-
-Cursor 3.0 ships [`/best-of-n` and parallel-agent worktrees](https://cursor.com/changelog/05-07-26): the same task is run in parallel across multiple models, each in an isolated git worktree, and you pick the winning attempt.
-
-This is selection, not collaboration. The agents never see each other's work, never debate trade-offs, and never refine a shared artifact. Useful for "which implementation do I like more," not for "what does the room think of this plan."
-
-### Zen / PAL MCP `consensus` tool
-
-PAL's [`consensus` tool](https://github.com/BeehiveInnovations/pal-mcp-server/blob/main/docs/tools/consensus.md) is the gold standard for multi-model perspective-gathering: stance steering (for/against/neutral), custom stance prompts, focus areas, ethical guardrails, and synthesis.
-
-The blocker for Cursor users on a team plan: PAL talks to model providers directly and **requires you to bring your own API keys** for each model. You cannot reuse the models your Cursor team plan already pays for.
-
-### This plugin
-
-A Cursor-native take on the same idea, built entirely out of plugin-native primitives — subagents, a slash command, a skill, and a reminder rule — so it uses **the models Cursor already gives you** with no extra API keys.
-
 ## Architecture
 
 ```text
@@ -76,6 +58,25 @@ A Cursor-native take on the same idea, built entirely out of plugin-native primi
 ```
 
 The two subagents are deliberately **identical except for the model they pin to**. The diversity of perspective comes from the model swap, not from differently-prompted personas.
+
+## Alternative approaches considered
+
+### Native Cursor parallel agents
+
+Cursor 3.0 ships [`/best-of-n` and parallel-agent worktrees](https://cursor.com/changelog/05-07-26): the same task is run in parallel across multiple models, each in an isolated git worktree, and you pick the winning attempt.
+
+This is selection, not collaboration. The agents never see each other's work, never debate trade-offs, and never refine a shared artifact. Useful for "which implementation do I like more," not for "what does the room think of this plan."
+
+### Zen / PAL MCP `consensus` tool
+
+PAL's [`consensus` tool](https://github.com/BeehiveInnovations/pal-mcp-server/blob/main/docs/tools/consensus.md) is the gold standard for multi-model perspective-gathering: stance steering (for/against/neutral), custom stance prompts, focus areas, ethical guardrails, and synthesis.
+
+The blocker for Cursor users on a team plan: PAL talks to model providers directly and **requires you to bring your own API keys** for each model. You cannot reuse the models your Cursor team plan already pays for.
+
+### This plugin
+
+A Cursor-native take on the same idea, built entirely out of plugin-native primitives — subagents, a slash command, a skill, and a reminder rule — so it uses **the models Cursor already gives you** with no extra API keys.
+
 
 ## Components
 
@@ -115,15 +116,49 @@ The two subagents are deliberately **identical except for the model they pin to*
 
 ## Installation
 
-### From the Cursor marketplace (recommended, once published)
+### Recommended: install from this GitHub repo
 
-This plugin will be listed on the [Cursor marketplace](https://cursor.com/marketplace). Install it from inside Cursor:
+Inside Cursor, open the Plugins UI and add this repository by URL:
+
+1. Open `Settings → Plugins`.
+2. Click **Add plugin from URL** (or the equivalent action that accepts a Git repo URL).
+3. Paste:
+
+   ```text
+   https://github.com/gtanetwork/cursor-multi-agent-consensus-plugin
+   ```
+
+4. Confirm. Cursor clones the repo into its managed plugin cache.
+5. Reload the window: `Cmd+Shift+P → "Developer: Reload Window"`.
+
+That's it — no shell commands, no manual file copying.
+
+### From the Cursor marketplace (once listed)
+
+This plugin will also be listed on the Cursor marketplace. When that lands you'll be able to install it without entering a URL:
 
 `Settings → Plugins → Browse marketplace → search "Multi-agent consensus" → Install`.
 
-### Local install (development / pre-marketplace)
+### Verify the install
 
-Cursor's local-plugin loader does **not follow symlinks** — install via real directory copy.
+After reload, the Plugins UI should show **Multi-agent consensus** with:
+
+- Skills: `consensus`
+- Subagents: `planning-buddy-gemini`, `planning-buddy-gpt`
+- Rules: `consensus-reminder`
+- Commands: `consensus`
+
+If the plugin doesn't appear, check the Cursor plugin loader log:
+
+- **macOS**: `~/Library/Application Support/Cursor/logs/<latest>/window1/exthost/anysphere.cursor-agent-exec/Cursor Plugins.log`
+- **Linux**: `~/.config/Cursor/logs/<latest>/window1/exthost/anysphere.cursor-agent-exec/Cursor Plugins.log`
+- **Windows**: `%APPDATA%\Cursor\logs\<latest>\window1\exthost\anysphere.cursor-agent-exec\Cursor Plugins.log`
+
+A line reading `loadFromMarketplaceSource ... 0 plugins loaded` for this plugin's source means Cursor failed to fetch or parse the repo. Open an issue on GitHub with the surrounding log lines and we'll dig in.
+
+### For plugin authors: local install from a checkout
+
+If you've cloned this repo and are editing the source, you can install the working copy directly. Cursor's local-plugin loader does **not follow symlinks** — use a real directory copy.
 
 **macOS / Linux**, from the repository root:
 
@@ -142,24 +177,9 @@ Copy-Item -Recurse -Force "$PWD" "$env:USERPROFILE\.cursor\plugins\local\multi-a
 Remove-Item -Recurse -Force "$env:USERPROFILE\.cursor\plugins\local\multi-agent-consensus\.git" -ErrorAction SilentlyContinue
 ```
 
-Then **fully reload Cursor**: `Cmd+Shift+P → "Developer: Reload Window"`.
+Then reload Cursor. Re-run after each edit to mirror changes into the install.
 
-### Verify the install
-
-After reload, in Cursor's plugins UI you should see **Multi-agent consensus** [Local] with:
-
-- Skills: `consensus`
-- Subagents: `planning-buddy-gemini`, `planning-buddy-gpt`
-- Rules: `consensus-reminder`
-- Commands: `consensus`
-
-If the plugin doesn't appear, check the Cursor plugin loader log for a line reading `loadUserLocalPlugins completed in Xms (0 plugins loaded)`. If you see it, you most likely installed via symlink — replace with a real directory copy.
-
-Log location:
-
-- **macOS**: `~/Library/Application Support/Cursor/logs/<latest>/window1/exthost/anysphere.cursor-agent-exec/Cursor Plugins.log`
-- **Linux**: `~/.config/Cursor/logs/<latest>/window1/exthost/anysphere.cursor-agent-exec/Cursor Plugins.log`
-- **Windows**: `%APPDATA%\Cursor\logs\<latest>\window1\exthost\anysphere.cursor-agent-exec\Cursor Plugins.log`
+If the local copy doesn't appear and the plugin loader log shows `loadUserLocalPlugins completed in Xms (0 plugins loaded)`, you most likely installed via symlink — replace with a real directory copy as shown above.
 
 ## Customization
 
