@@ -1,0 +1,12 @@
+---
+description: Apply when the agent is about to commit to a non-trivial direction — either creating a technical plan, design, or implementation approach (plan-mode), or forming a root-cause hypothesis or proposed fix for a tricky bug (debug-mode). Reminds the agent to use the /consensus workflow before implementation or before acting on a fix.
+alwaysApply: false
+---
+
+# Consensus Reminder
+
+For non-trivial implementation plans, use the `/consensus` command (or the bundled `consensus` skill) and launch all available `planning-buddy-*` subagents before writing code.
+
+The same workflow applies during debugging when the proposed root cause or fix is non-obvious: draft the hypothesis, run `/consensus`, let the planning buddies challenge it from independently-modeled perspectives, and only act on the synthesized refinement.
+
+A few minutes of cross-model scrutiny saves hours of rework — and, in debugging, prevents fixes that paper over the wrong cause.

@@ -1,0 +1,9 @@
+{
+  "name": "multi-agent-consensus",
+  "displayName": "Multi-agent consensus",
+  "version": "1.0.0",
+  "description": "Multi-agent collaborative consensus workflow for verifying implementation plans and debugging in Cursor.",
+  "author": {
+    "name": "GTA Network Consulting"
+  }
+}
